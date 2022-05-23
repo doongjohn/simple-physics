@@ -1,19 +1,8 @@
 // TODO:
-// - [x] 모든 방향에서 충돌 할 수 있도록 만들기
-// - [x] 충돌 했을 때 반응하기
-// - [ ] 움직이는 원 2개가 서로 충돌 + 반응하기
+// - [x] 움직이는 원 2개가 서로 충돌 + 반응하기
 // - [ ] 움직이는 원 n개가 서로 충돌 + 반응하기
-// - [ ] 터널링이 불가능 하게 만들기(CCD)
-// - [ ] 선분도 원과 똑같이 작동하게 만들기
-// - [ ] 원과 선분이 서로 충돌 + 반응하기
-// - [ ] 충돌시 해결시 가속도 반영하기
-// - [ ] 물체 회전 구현하기
-// - [ ] 충돌시 해결시 회전 반영하기
-// LINKS:
-// - https://www.falstad.com
-// - https://tip1234.tistory.com/143
-// - https://ericleong.me/research/circle-circle/
-// - https://www.youtube.com/watch?v=eED4bSkYCB8
+// - [ ] 터널링 방지 기능 만들기(CCD)
+// - [ ] 선분과 원이 충돌 가능하게 만들기
 
 class Circle {
   constructor(x, y, r, color = '') {
