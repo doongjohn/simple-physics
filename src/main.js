@@ -1,8 +1,8 @@
 // TODO:
-// - [x] 움직이는 원 2개가 서로 충돌 + 반응하기
-// - [ ] 움직이는 원 n개가 서로 충돌 + 반응하기
-// - [ ] 터널링 방지 기능 만들기(CCD)
-// - [ ] 선분과 원이 충돌 가능하게 만들기
+// - [x] 움직이는 원 2개가 서로 충돌 및 반응하기
+// - [ ] 움직이는 원 n개가 서로 충돌 및 반응하기
+// - [ ] 선분과 원이 서로 충돌 및 반응하기
+// - [ ] 터널링 방지 기능 만들기 (CCD)
 
 class Circle {
   constructor(x, y, r, color = '') {
@@ -24,8 +24,8 @@ class Circle {
 let circles = []
 
 for (let y = 1; y < 12; ++y) {
-  for (let x = 1; x < 17; ++x) {
-    circles.push(new Circle(canvas.width - x * 82, canvas.height - y * 82, randomInt(10, 40)))
+  for (let x = 1; x < 23; ++x) {
+    circles.push(new Circle(canvas.width - x * 83, canvas.height - y * 83, randomInt(10, 40)))
   }
 }
 
@@ -52,8 +52,8 @@ class Collision {
     for (let other of circles) {
       if (self == other) continue
       if (isCircleOverlap(self, other)) {
-        let pushDist = (self.r + other.r) - self.p.dist(other.p)
-        let pushVec = self.p.dir(other.p).mulS(pushDist / 2)
+        let pushDist = (self.r + other.r - self.p.dist(other.p)) / 2
+        let pushVec = self.p.dir(other.p).mulS(pushDist)
         Vector2.sub(self.p, pushVec)
         Vector2.add(other.p, pushVec)
       }
@@ -134,10 +134,6 @@ function loop() {
   // clear screen
   clearScreen()
 
-  // move
-  for (let c of circles)
-    c.move(deltaTime)
-
   // resolve
   for (let c of circles)
     Collision.resolve(c)
@@ -146,7 +142,7 @@ function loop() {
   for (let c of circles)
     Collision.response(c)
 
-  // apply new vector
+  // apply new vector (response vector)
   for (let c of circles) {
     if (c.nv) {
       c.v = c.nv
@@ -154,8 +150,15 @@ function loop() {
     }
   }
 
+  // move
+  for (let c of circles) {
+    c.move(deltaTime)
+  }
+
   // draw
-  for (let c of circles) c.draw()
+  for (let c of circles) {
+    c.draw()
+  }
 }
 
 // loop
