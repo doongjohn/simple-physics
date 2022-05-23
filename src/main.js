@@ -6,18 +6,28 @@
 
 class Circle {
   constructor(x, y, r, color = '') {
-    this.color = color ? color : '#88e0ff'
+    // position
     this.p = new Vector2(x, y)
+
+    // radius
     this.r = r
-    this.m = 1
+
+    // current velocity
     this.v = new Vector2(0, 0)
-    this.nv = new Vector2(0, 0)
+
+    // next frame velocity
+    this.nv = null
+
+    // draw color
+    this.color = color ? color : '#88e0ff'
   }
-  draw() {
-    drawCircleStroke(this.p.x, this.p.y, this.r - 3, 6, this.color)
-  }
+
   move(dt) {
     Vector2.add(this.p, this.v.mulS(dt))
+  }
+
+  draw() {
+    drawCircleStroke(this.p.x, this.p.y, this.r - 3, 6, this.color)
   }
 }
 
@@ -29,16 +39,17 @@ for (let y = 1; y < 12; ++y) {
   }
 }
 
+// - click to move the first ball towards the mouse
+// - shift click to teleport the first ball to the mouse position
 window.addEventListener('mousedown', event => {
-  if (event.button == 0) {
-    if (event.shiftKey) {
-      circles[0].v = Vector2.zero
-      circles[0].nv = null
-      circles[0].p.x = event.x
-      circles[0].p.y = event.y
-    } else {
-      circles[0].v = circles[0].p.dir(new Vector2(event.x, event.y)).mulS(1000)
-    }
+  if (event.button != 0) return
+  if (event.shiftKey) {
+    circles[0].v = Vector2.zero
+    circles[0].nv = null
+    circles[0].p.x = event.x
+    circles[0].p.y = event.y
+  } else {
+    circles[0].v = circles[0].p.dir(new Vector2(event.x, event.y)).mulS(1000)
   }
 })
 
@@ -162,7 +173,7 @@ function loop() {
 }
 
 // loop
-(function LOOP() {
+; (function LOOP() {
   loop()
   requestAnimationFrame(LOOP)
 })()
