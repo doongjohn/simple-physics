@@ -182,6 +182,11 @@ let deltaTime = 0 // seconds
 let startTime = 0
 
 function loop() {
+  if (document.hidden) {
+    startTime = performance.now()
+    return
+  }
+
   // calculate delta time
   deltaTime = (performance.now() - startTime) / 1000
   startTime = performance.now()
