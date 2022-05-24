@@ -35,9 +35,20 @@ let circles = []
 
 for (let y = 1; y < 12; ++y) {
   for (let x = 1; x < 23; ++x) {
-    circles.push(new Circle(canvas.width - x * 83, canvas.height - y * 83, randomInt(10, 40)))
+    circles.push(new Circle(
+      canvas.width - x * 83,
+      canvas.height - y * 83,
+      randomInt(10, 40),
+      // '#' + randomInt(12303291, 16777215).toString(16)
+    ))
   }
 }
+
+// for (let y = 1; y < 2; ++y) {
+//   for (let x = 1; x < 3; ++x) {
+//     circles.push(new Circle(canvas.width - x * 83, canvas.height - y * 83, randomInt(10, 40)))
+//   }
+// }
 
 // - click to move the first ball towards the mouse
 // - shift click to teleport the first ball to the mouse position
@@ -58,19 +69,48 @@ function isCircleOverlap(a, b) {
 }
 
 class Collision {
-  static resolve(self) {
-    // resolve other balls
+  static colliding = new Map()
+
+  static createCollisionGroup(self) {
+    // TODO: find better way to group collisions
+
+    let group = []
     for (let other of circles) {
       if (self == other) continue
       if (isCircleOverlap(self, other)) {
-        let pushDist = (self.r + other.r - self.p.dist(other.p)) / 2
-        let pushVec = self.p.dir(other.p).mulS(pushDist)
-        Vector2.sub(self.p, pushVec)
-        Vector2.add(other.p, pushVec)
+        // resolve collision
+        this.resolve(self, other)
+
+        if (this.colliding.has(other)) {
+          // add to existing group
+          if (!this.colliding.get(other).includes(self))
+            this.colliding.get(other).push(self)
+          return
+        }
+
+        // add to group
+        group.push(other)
       }
     }
 
-    // resolve wall
+    // create new collision group
+    if (group.length > 0) {
+      group.push(self)
+      this.colliding.set(self, group)
+    }
+  }
+
+  static resolve(self, other) {
+    // TODO: find better way to resolve collision
+    let pushDist = (self.r + other.r - self.p.dist(other.p)) / 2
+    if (pushDist == 0)
+      return
+    let pushVec = self.p.dir(other.p).mulS(pushDist)
+    Vector2.sub(self.p, pushVec)
+    Vector2.add(other.p, pushVec)
+  }
+
+  static resolveWall(self) {
     let wallPos = self.p.dup()
     let wallNormal = Vector2.zero
     if (self.p.x + self.r >= canvas.width) {
@@ -88,7 +128,7 @@ class Collision {
       wallPos.y = 0
     }
     if (!wallNormal.isZero()) {
-      // force ball to be inside of the canvas area
+      // force `self` to be inside of the canvas area
       self.p = wallPos.add(wallNormal.mulS(self.r))
     }
   }
@@ -98,40 +138,44 @@ class Collision {
     if (self.v.isZero())
       return Vector2.zero
 
+    // TODO: optimize this if possible
     let hitDir = self.p.dir(other.p)
     let hitForce = self.v.magnitude * self.v.normalize().dot(hitDir)
     return hitDir.mulS(hitForce)
   }
 
-  static response(self) {
-    // wall response
+  static response(self, other) {
+    // 주는 힘을 빼고 받는 힘을 더한다
+    let selfToOther = this.#calcPropagateVelocity(self, other);
+    let otherToSelf = this.#calcPropagateVelocity(other, self);
+    other.v = other.v.sub(otherToSelf).add(selfToOther)
+    self.v = self.v.sub(selfToOther).add(otherToSelf)
+  }
+
+  static responseWall(self) {
     let wallNormal = Vector2.zero
-    if (self.p.x + self.r >= canvas.width)
+    if (self.p.x + self.r >= canvas.width) {
       wallNormal.x = -1
-    else if (self.p.x - self.r <= 0)
+    } else if (self.p.x - self.r <= 0) {
       wallNormal.x = 1
-    if (self.p.y + self.r >= canvas.height)
+    }
+    if (self.p.y + self.r >= canvas.height) {
       wallNormal.y = -1
-    else if (self.p.y - self.r <= 0)
+    } else if (self.p.y - self.r <= 0) {
       wallNormal.y = 1
+    }
     if (!wallNormal.isZero()) {
       Vector2.normalize(wallNormal)
-      self.nv = self.v.reflect(wallNormal)
-    }
-
-    // other ball response
-    for (let other of circles) {
-      if (other == self || self.nv) continue
-      // TODO: response multiple collision
-      if (isCircleOverlap(self, other)) {
-        let selfToOther = this.#calcPropagateVelocity(self, other);
-        let otherToSelf = this.#calcPropagateVelocity(other, self);
-        // 주는 힘을 빼고 받는 힘을 더한다
-        other.nv = other.v.sub(otherToSelf).add(selfToOther)
-        self.nv = self.v.sub(selfToOther).add(otherToSelf)
-      }
+      self.v = self.v.reflect(wallNormal)
     }
   }
+}
+
+function forAllPairs(array, cb) {
+  if (!array || array.length < 2) return
+  for (let a = 0; a < array.length - 1; ++a)
+    for (let b = a + 1; b < array.length; ++b)
+      cb(array[a], array[b])
 }
 
 let deltaTime = 0 // seconds
@@ -142,31 +186,36 @@ function loop() {
   deltaTime = (performance.now() - startTime) / 1000
   startTime = performance.now()
 
-  // clear screen
-  clearScreen()
-
-  // resolve
-  for (let c of circles)
-    Collision.resolve(c)
-
-  // response
-  for (let c of circles)
-    Collision.response(c)
-
-  // apply new vector (response vector)
+  // check collision
+  Collision.colliding.clear()
   for (let c of circles) {
-    if (c.nv) {
-      c.v = c.nv
-      c.nv = null
-    }
+    Collision.createCollisionGroup(c)
   }
 
-  // move
+  // resolve wall
+  for (let c of circles) {
+    Collision.resolveWall(c)
+  }
+
+  // response
+  for (let col of Collision.colliding.values()) {
+    forAllPairs(col, (a, b) => {
+      Collision.response(a, b)
+    })
+  }
+
+  // response wall
+  for (let c of circles) {
+    Collision.responseWall(c)
+  }
+
+  // update positions
   for (let c of circles) {
     c.move(deltaTime)
   }
 
-  // draw
+  // draw balls
+  clearScreen()
   for (let c of circles) {
     c.draw()
   }
@@ -180,6 +229,7 @@ function loop() {
 
 // window.addEventListener('keydown', (input) => {
 //   if (input.key == ' ') {
+//     deltaTime = 0.01
 //     loop()
 //   }
 // })
