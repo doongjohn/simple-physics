@@ -13,13 +13,14 @@ class Circle {
     this.r = r
 
     // velocity
-    this.v = new Vector2(0, 0)
+    this.v = Vector2.zero
 
     // draw color
     this.color = color ? color : '#88e0ff'
   }
 
   move(dt) {
+    // Vector2.add(this.v, new Vector2(0, 300).mulS(dt))
     Vector2.add(this.p, this.v.mulS(dt))
   }
 
@@ -32,8 +33,6 @@ let circles = []
 
 for (let y = 1; y < 12; ++y) {
   for (let x = 1; x < 23; ++x) {
-    // for (let y = 1; y < 3; ++y) {
-    //   for (let x = 1; x < 3; ++x) {
     circles.push(new Circle(
       canvas.width - x * 83,
       canvas.height - y * 83,
@@ -68,21 +67,19 @@ class Collision {
 
   static createCollisionGroup(self) {
     // TODO: find better way to group collisions
+    // this method is very bad for stacked objects
 
     let group = []
     for (let other of circles) {
       if (self == other) continue
       if (isCircleOverlap(self, other)) {
-        // resolve collision
         this.resolve(self, other)
-
         if (this.colliding.has(other)) {
           // add to existing group
           if (!this.colliding.get(other).includes(self))
             this.colliding.get(other).push(self)
           return
         }
-
         // add to group
         group.push(other)
       }
@@ -97,12 +94,12 @@ class Collision {
 
   static resolve(self, other) {
     // TODO: find better way to resolve collision
-    let pushDist = (self.r + other.r - self.p.dist(other.p)) / 2
-    if (pushDist == 0)
-      return
-    let pushVec = self.p.dir(other.p).mulS(pushDist)
-    Vector2.sub(self.p, pushVec)
-    Vector2.add(other.p, pushVec)
+    let pushDist = (self.r + other.r - self.p.dist(other.p))
+    if (pushDist != 0) {
+      let pushVec = self.p.dir(other.p).mulS(pushDist / 2)
+      Vector2.sub(self.p, pushVec)
+      Vector2.add(other.p, pushVec)
+    }
   }
 
   static resolveWall(self) {
@@ -146,8 +143,6 @@ class Collision {
       let otherToSelf = this.#calcPropagateVelocity(other, self);
       other.v = other.v.sub(otherToSelf).add(selfToOther)
       self.v = self.v.sub(selfToOther).add(otherToSelf)
-      Vector2.mulS(other.v, 0.99)
-      Vector2.mulS(self.v, 0.99)
     }
   }
 
@@ -196,11 +191,6 @@ function loop() {
     for (let c of circles) {
       Collision.createCollisionGroup(c)
     }
-
-    // resolve wall
-    for (let c of circles) {
-      Collision.resolveWall(c)
-    }
   }
 
   // response
@@ -210,6 +200,12 @@ function loop() {
     })
   }
 
+  // resolve wall
+  for (let c of circles) {
+    Collision.resolveWall(c)
+  }
+
+  // TODO: treat wall as a physical object
   // response wall
   for (let c of circles) {
     Collision.responseWall(c)
