@@ -12,11 +12,8 @@ class Circle {
     // radius
     this.r = r
 
-    // current velocity
+    // velocity
     this.v = new Vector2(0, 0)
-
-    // next frame velocity
-    this.nv = null
 
     // draw color
     this.color = color ? color : '#88e0ff'
@@ -35,32 +32,30 @@ let circles = []
 
 for (let y = 1; y < 12; ++y) {
   for (let x = 1; x < 23; ++x) {
+    // for (let y = 1; y < 3; ++y) {
+    //   for (let x = 1; x < 3; ++x) {
     circles.push(new Circle(
       canvas.width - x * 83,
       canvas.height - y * 83,
       randomInt(10, 40),
-      // '#' + randomInt(12303291, 16777215).toString(16)
+      '#bbbb' + randomInt(200, 255).toString(16)
     ))
   }
 }
 
-// for (let y = 1; y < 2; ++y) {
-//   for (let x = 1; x < 3; ++x) {
-//     circles.push(new Circle(canvas.width - x * 83, canvas.height - y * 83, randomInt(10, 40)))
-//   }
-// }
-
 // - click to move the first ball towards the mouse
 // - shift click to teleport the first ball to the mouse position
 window.addEventListener('mousedown', event => {
-  if (event.button != 0) return
-  if (event.shiftKey) {
-    circles[0].v = Vector2.zero
-    circles[0].nv = null
-    circles[0].p.x = event.x
-    circles[0].p.y = event.y
-  } else {
-    circles[0].v = circles[0].p.dir(new Vector2(event.x, event.y)).mulS(1000)
+  if (event.button == 0) {
+    let mousePos = new Vector2(event.x, event.y)
+    if (event.shiftKey) {
+      // teleport to the mouse
+      circles[0].v = Vector2.zero
+      circles[0].p = mousePos
+    } else {
+      // move towards the mouse
+      circles[0].v = circles[0].p.dir(mousePos).mulS(1000)
+    }
   }
 })
 
@@ -145,11 +140,15 @@ class Collision {
   }
 
   static response(self, other) {
-    // 주는 힘을 빼고 받는 힘을 더한다
-    let selfToOther = this.#calcPropagateVelocity(self, other);
-    let otherToSelf = this.#calcPropagateVelocity(other, self);
-    other.v = other.v.sub(otherToSelf).add(selfToOther)
-    self.v = self.v.sub(selfToOther).add(otherToSelf)
+    if (isCircleOverlap(self, other)) {
+      // 주는 힘을 빼고 받는 힘을 더한다
+      let selfToOther = this.#calcPropagateVelocity(self, other);
+      let otherToSelf = this.#calcPropagateVelocity(other, self);
+      other.v = other.v.sub(otherToSelf).add(selfToOther)
+      self.v = self.v.sub(selfToOther).add(otherToSelf)
+      Vector2.mulS(other.v, 0.99)
+      Vector2.mulS(self.v, 0.99)
+    }
   }
 
   static responseWall(self) {
@@ -191,15 +190,17 @@ function loop() {
   deltaTime = (performance.now() - startTime) / 1000
   startTime = performance.now()
 
-  // check collision
-  Collision.colliding.clear()
-  for (let c of circles) {
-    Collision.createCollisionGroup(c)
-  }
+  for (let substep = 0; substep < 10; ++substep) {
+    // check collision
+    Collision.colliding.clear()
+    for (let c of circles) {
+      Collision.createCollisionGroup(c)
+    }
 
-  // resolve wall
-  for (let c of circles) {
-    Collision.resolveWall(c)
+    // resolve wall
+    for (let c of circles) {
+      Collision.resolveWall(c)
+    }
   }
 
   // response
