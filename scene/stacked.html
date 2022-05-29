@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>physics</title>
+  <link rel="stylesheet" href="/css/styles.css">
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="/lib/matrixgl.min.js"></script>
+  <script src="/src/math.js"></script>
+  <script src="/src/utils.js"></script>
+  <script src="/src/canvas.js"></script>
+  <script src="/src/engine.js"></script>
+  <script>
+    circles.push(new Circle(
+      center.x - 100,
+      center.y,
+      20,
+      '#ffaa88'
+    ))
+    let spawns = {
+      x: 7,
+      y: 5
+    }
+    for (let y = 1; y < spawns.y + 1; ++y) {
+      for (let x = 1; x < spawns.x + 1; ++x) {
+        circles.push(new Circle(
+          0 + x * 60,
+          0 + y * 60,
+          randomInt(10, 30)
+        ))
+      }
+    }
+  </script>
+  <script src="/src/main.js"></script>
+</body>
+
+</html>

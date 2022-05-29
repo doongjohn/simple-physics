@@ -18,12 +18,20 @@ Object.defineProperty(Vector2, 'zero', {
   get: () => new Vector2(0, 0)
 });
 
+Object.defineProperty(Vector2, 'one', {
+  get: () => new Vector2(1, 1)
+});
+
 Vector2.prototype.dup = function() {
   return new Vector2(this.x, this.y)
 }
 
 Vector2.prototype.isZero = function() {
   return (this.x == 0 && this.y ==0)
+}
+
+Vector2.prototype.eq = function(other) {
+  return this.x == other.x && this.y == other.y
 }
 
 Vector2.add = function(self, other) {
@@ -54,6 +62,10 @@ Vector2.mul = function(self, other) {
   self.x *= other.x
   self.y *= other.y
   return self
+}
+
+Vector2.prototype.mul = function(other) {
+  return new Vector2(this.x * other.x, this.y * other.y)
 }
 
 Vector2.div = function(self, other) {
@@ -125,6 +137,10 @@ Vector2.prototype.normalize = function() {
   return vec
 }
 
+Vector2.prototype.dir = function(to) {
+  return to.sub(this).normalize()
+}
+
 Vector2.prototype.dot = function(other) {
   return (this.x * other.x + this.y * other.y)
 }
@@ -134,6 +150,7 @@ Vector2.prototype.reflect = function(normal) {
   return this.sub(normal.mulS(2 * this.dot(normal)))
 }
 
-Vector2.prototype.dir = function(to) {
-  return to.sub(this).normalize()
+Vector2.prototype.project = function(on) {
+  on = on.normalize()
+  return on.mulS(this.dot(on))
 }
