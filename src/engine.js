@@ -121,13 +121,13 @@ class Circle {
         // velocity (other)
         let vo = other.p.sub(other.pp).mulS(damping)
 
-        // calculate impulse vector
+        // calculate separating velocity
         let relVel = vs.sub(vo)
-        let impulse = pushDir.mulS(-relVel.dot(pushDir))
+        let sepVel = pushDir.mulS(-relVel.dot(pushDir))
 
-        // apply impulse
-        this.pp = this.p.sub(vs.add(impulse))
-        other.pp = other.p.sub(vo.sub(impulse))
+        // apply separating velocity
+        this.pp = this.p.sub(vs.add(sepVel))
+        other.pp = other.p.sub(vo.sub(sepVel))
       }
     }
   }
