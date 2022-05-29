@@ -2,7 +2,7 @@
 
 simple 2D physics engine from scratch
 
-demo: <doongjohn.github.io/simple-physics/>
+demo: <https://doongjohn.github.io/simple-physics/>
 
 ## Learning resources
 
