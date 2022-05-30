@@ -11,7 +11,7 @@ function simulate() {
 
     // gravity
     for (let c of circles)
-      c.a.y += 100
+      c.a.y += gravity
 
     // move to next position
     for (let c of circles)

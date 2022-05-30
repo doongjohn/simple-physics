@@ -11,7 +11,11 @@
 let deltaTime = 0 // seconds
 let startTime = 0
 let substep = 2
-let damping = 1 // 0 ~ 1
+
+let gravity = 0 // 0 ~
+let damping = 0 // 0 ~ 1
+let drag = 0    // 0 ~ 1
+
 let circles = []
 
 class Circle {
@@ -43,7 +47,7 @@ class Circle {
     // next position = 2p - pp + a * dt^2
     // --------------------------------------
     let nextPos =
-      this.p.mulS(2).sub(this.pp)
+      this.p.mulS(2 - drag).sub(this.pp.mulS(1 - drag))
         .add(this.a.mulS(dt ** 2))
 
     // update previous position
@@ -74,7 +78,7 @@ class Circle {
   }
 
   collisionBorderBounce() {
-    let v = this.p.sub(this.pp).mulS(damping)
+    let v = this.p.sub(this.pp).mulS(1 - damping)
 
     // border x-axis
     if (this.p.x + this.r >= canvas.width) {
@@ -116,10 +120,10 @@ class Circle {
 
       if (preserveImpulse) {
         // velocity (self)
-        let vs = this.p.sub(this.pp).mulS(damping)
+        let vs = this.p.sub(this.pp).mulS(1 - damping)
 
         // velocity (other)
-        let vo = other.p.sub(other.pp).mulS(damping)
+        let vo = other.p.sub(other.pp).mulS(1 - damping)
 
         // calculate separating velocity
         let relVel = vs.sub(vo)
@@ -147,10 +151,11 @@ window.addEventListener('mousedown', event => {
       // teleport to the mouse
       circles[0].p = mousePos.dup()
       circles[0].pp = mousePos.dup()
+      circles[0].a = Vector2.zero
     } else {
       // move towards the mouse
       circles[0].pp = circles[0].p.dup()
-      Vector2.add(circles[0].pp, mousePos.dir(circles[0].p).mulS(5))
+      Vector2.add(circles[0].a, circles[0].p.dir(mousePos).mulS(50000))
     }
   }
 })
