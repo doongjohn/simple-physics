@@ -155,7 +155,7 @@ window.addEventListener('mousedown', event => {
     } else {
       // move towards the mouse
       circles[0].pp = circles[0].p.dup()
-      Vector2.add(circles[0].a, circles[0].p.dir(mousePos).mulS(50000))
+      Vector2.add(circles[0].a, circles[0].p.dir(mousePos).mulS(100000))
     }
   }
 })

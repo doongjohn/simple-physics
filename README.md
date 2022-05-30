@@ -23,6 +23,7 @@ demo: <https://doongjohn.github.io/simple-physics/>
 
 - [Sebastian Lague | I Spent a Week Making an AI's Video Game Idea](https://www.youtube.com/watch?v=PGk0rnyTa1U)
 - [Pezzza's Work | Writing a Physics Engine from scratch](https://www.youtube.com/watch?v=lS_qeBy3aQI)
+- [William Y. Feng | Quadtrees and The Barnes-Hut Algorithm: The Making of a Gravity Simulation](https://www.youtube.com/watch?v=tOlKLJ4WmSE)
 
 ### projects
 

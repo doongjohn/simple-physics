@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>physics</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="../lib/matrixgl.min.js"></script>
+  <script src="../src/math.js"></script>
+  <script src="../src/utils.js"></script>
+  <script src="../src/canvas.js"></script>
+  <script src="../src/engine.js"></script>
+  <script>
+    damping = 0.02
+    drag = 0.005
+
+    canvas.style.backgroundColor = "#16543f"
+
+    let colors15 = [
+      { n: 1, s: false, c: '#f2eb0f' }, // yellow
+      { n: 2, s: false, c: '#3858fc' }, // blue
+      { n: 3, s: false, c: '#f2291b' }, // red
+      { n: 4, s: false, c: '#7316c4' }, // purple
+      { n: 5, s: false, c: '#f28218' }, // orange
+      { n: 6, s: false, c: '#08d420' }, // green
+      { n: 7, s: false, c: '#b02020' }, // maroon
+    ]
+    colors15.push(...colors15.map(e => ({ n: e.n + 8, s: true, c: e.c })))
+    colors15.push({ n: 8, s: false, c: '#000000' })
+    let colors = colors15
+      .map(value => ({ value, sort: Math.random() }))
+      .sort((a, b) => a.sort - b.sort)
+      .map(({ value }) => value)
+
+    // white ball
+    circles.push(new Circle(
+      center.x - 300,
+      center.y,
+      20,
+    ))
+    circles.at(-1).draw = function () {
+      drawCircle(this.p.x, this.p.y, this.r, '#ffffff')
+    }
+
+    // pyramid
+    let pos = new Vector2(center.x, center.y)
+    let c = 0
+    for (let i = 0; i < 5; ++i) {
+      for (let n = 0; n < i + 1; ++n) {
+        circles.push(new Circle(0, 0, 20))
+        let self = circles.at(-1)
+        self.p.x = pos.x + i * self.r * 1.8
+        self.p.y = pos.y - i * self.r + n * self.r * 2
+        self.pp = self.p.dup()
+        let ci = c++ // capture color index
+        self.draw = function () {
+          if (colors[ci].s) {
+            gl.save()
+            gl.beginPath()
+            gl.arc(this.p.x, this.p.y, this.r, 0, Math.TAU)
+            gl.clip()
+            gl.beginPath()
+            gl.fillStyle = '#ffffff'
+            gl.arc(this.p.x, this.p.y, this.r, 0, Math.TAU)
+            gl.fill()
+            gl.fillStyle = colors[ci].c
+            gl.fillRect(this.p.x - this.r, this.p.y - this.r * 1.5 / 2, this.r * 2, this.r * 1.5)
+          } else {
+            gl.beginPath()
+            gl.fillStyle = colors[ci].c
+            gl.arc(this.p.x, this.p.y, this.r, 0, Math.TAU)
+            gl.fill()
+          }
+          gl.restore()
+          gl.beginPath()
+          gl.fillStyle = '#ffffff'
+          gl.arc(this.p.x, this.p.y, this.r / 1.8, 0, Math.TAU)
+          gl.fill()
+          gl.fillStyle = '#000000'
+          gl.font = 'bold 13px consolas'
+          gl.textAlign = 'center'
+          gl.textBaseline = 'middle'
+          gl.fillText(colors[ci].n, this.p.x, this.p.y)
+        }
+      }
+    }
+  </script>
+  <script src="../src/main.js"></script>
+</body>
+
+</html>
