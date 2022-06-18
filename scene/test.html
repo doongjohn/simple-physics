@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>physics</title>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+
+<body>
+  <canvas id="canvas"></canvas>
+  <script src="../lib/matrixgl.min.js"></script>
+  <script src="../src/math.js"></script>
+  <script src="../src/utils.js"></script>
+  <script src="../src/canvas.js"></script>
+  <script src="../src/engine.js"></script>
+  <script>
+    gravity = 100
+
+    function createRect(p1, p2, p3, p4, a) {
+      let plist = [
+        new Point(p1.x, p1.y),
+        new Point(p2.x, p2.y),
+        new Point(p3.x, p3.y),
+        new Point(p4.x, p4.y),
+      ]
+      points.push(...plist)
+
+      // for (let i = 0; i < 4; ++i)
+      //   plist[i].a = a
+
+      sticks.push(new Stick(plist[0], plist[1]))
+      sticks.push(new Stick(plist[0], plist[2]))
+      sticks.push(new Stick(plist[1], plist[3]))
+      sticks.push(new Stick(plist[2], plist[3]))
+      sticks.push(new Stick(plist[1], plist[2]))
+      sticks.push(new Stick(plist[0], plist[3]))
+    }
+
+    createRect(
+      { x: 50, y: 100 },
+      { x: 50, y: 150 },
+      { x: 100, y: 100 },
+      { x: 100, y: 150 },
+      new Vector2(1000, 0)
+    )
+    createRect(
+      { x: 150, y: 100 },
+      { x: 150, y: 150 },
+      { x: 200, y: 100 },
+      { x: 200, y: 150 },
+      new Vector2(1000, 0)
+    )
+  </script>
+  <script src="../src/main.js"></script>
+</body>
+
+</html>
