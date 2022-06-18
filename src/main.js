@@ -1,18 +1,7 @@
 function simulate() {
   let subdt = deltaTime / substep
   for (let i = 0; i < substep; ++i) {
-    // collision resolution
-    for (let p of points)
-      p.collisionBorder()
-
-    for (let a of circles)
-      for (let b of circles)
-        a.collisionCircle(b)
-
-    for (let c of circles)
-      c.collisionBorder()
-
-    // gravity
+    // apply gravity
     for (let p of points) p.a.y += gravity
     for (let c of circles) c.a.y += gravity
 
@@ -25,6 +14,7 @@ function simulate() {
       p.collisionBorderBounce()
 
     forAllPairs(circles, (a, b) => {
+      // TODO: optimize this with spatial hash
       a.collisionCircle(b, true)
     })
 
@@ -34,6 +24,11 @@ function simulate() {
     // update sticks
     for (let s of sticks)
       s.constrainDistance()
+
+    // collision response
+    // (this is to fix border penetrating issue after stick update)
+    for (let p of points)
+      p.collisionBorderBounce()
   }
 }
 

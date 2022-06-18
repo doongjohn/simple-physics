@@ -45,7 +45,7 @@ function verletMove(self, dt) {
   self.a.y = 0
 }
 
-// TODO: implement point
+// TODO: propagate collision response to all connected points
 class Point {
   constructor(x, y, color = '') {
     // position
@@ -249,17 +249,17 @@ class Circle {
 // - click to move the first ball towards the mouse
 // - shift click to teleport the first ball to the mouse position (resets velocity)
 window.addEventListener('mousedown', event => {
-  // if (event.button == 0) {
-  //   let mousePos = new Vector2(event.x, event.y)
-  //   if (event.shiftKey) {
-  //     // teleport to the mouse
-  //     circles[0].p = mousePos.dup()
-  //     circles[0].pp = mousePos.dup()
-  //     circles[0].a = Vector2.zero
-  //   } else {
-  //     // move towards the mouse
-  //     circles[0].pp = circles[0].p.dup()
-  //     Vector2.add(circles[0].a, circles[0].p.dir(mousePos).mulS(100000))
-  //   }
-  // }
+  if (event.button == 0) {
+    let mousePos = new Vector2(event.x, event.y)
+    if (event.shiftKey) {
+      // teleport to the mouse
+      circles[0].p = mousePos.dup()
+      circles[0].pp = mousePos.dup()
+      circles[0].a = Vector2.zero
+    } else {
+      // move towards the mouse
+      circles[0].pp = circles[0].p.dup()
+      Vector2.add(circles[0].a, circles[0].p.dir(mousePos).mulS(100000))
+    }
+  }
 })
