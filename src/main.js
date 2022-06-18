@@ -24,6 +24,8 @@ function simulate() {
     // update sticks
     for (let s of sticks)
       s.constrainDistance()
+    for (let s of sticksHidden)
+      s.constrainDistance()
 
     // collision response
     // (this is to fix border penetrating issue after stick update)

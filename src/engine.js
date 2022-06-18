@@ -1,11 +1,9 @@
 // TODO:
 // - [x] discrete collision detection
 // - [x] collision response
-// - [ ] verlet point and stick
-//   - [ ] distance constraints
+// - [x] verlet point and stick
+//   - [x] distance constraints
 //   - [ ] angle constraints
-// - [ ] line vs circle collision
-// - [ ] line vs verlet point collision
 // - [ ] continuous collision detection
 
 let deltaTime = 0 // seconds
@@ -18,6 +16,7 @@ let drag = 0    // 0 ~ 1
 
 let points = []
 let sticks = []
+let sticksHidden = []
 let circles = []
 
 function verletMove(self, dt) {
@@ -46,6 +45,8 @@ function verletMove(self, dt) {
 }
 
 // TODO: propagate collision response to all connected points
+// TODO: point vs circle collision
+// TODO: point vs stick collision
 class Point {
   constructor(x, y, color = '') {
     // position
@@ -143,6 +144,7 @@ class Stick {
   }
 }
 
+// TODO: circle vs stick collision
 class Circle {
   constructor(x, y, r, color = '') {
     // position
