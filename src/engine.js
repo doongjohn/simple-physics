@@ -31,7 +31,7 @@ function verletMove(self, dt) {
   // --------------------------------------
   let nextPos =
     self.p.mulS(2 - drag).sub(self.pp.mulS(1 - drag))
-    .add(self.a.mulS(dt ** 2))
+      .add(self.a.mulS(dt ** 2))
 
   // update previous position
   self.pp = self.p
@@ -44,7 +44,7 @@ function verletMove(self, dt) {
   self.a.y = 0
 }
 
-// TODO: propagate collision response to all connected points
+// TODO: * propagate collision response to all connected points
 // TODO: point vs circle collision
 // TODO: point vs stick collision
 class Point {
@@ -71,41 +71,33 @@ class Point {
     drawCircle(this.p.x, this.p.y, radius, this.color)
   }
 
-  collisionBorder() {
-    // border x-axis
-    if (this.p.x > canvas.width) {
-      this.p.x = canvas.width
-    } else if (this.p.x < 0) {
-      this.p.x = 0
-    }
-
-    // border y-axis
-    if (this.p.y > canvas.height) {
-      this.p.y = canvas.height
-    } else if (this.p.y < 0) {
-      this.p.y = 0
-    }
-  }
-
   collisionBorderBounce() {
     let v = this.p.sub(this.pp).mulS(1 - damping)
 
+    const updateX = () => {
+      this.pp.x = this.p.x + v.x
+    }
+
+    const updateY = () => {
+      this.pp.y = this.p.y + v.y
+    }
+
     // border x-axis
     if (this.p.x > canvas.width) {
       this.p.x = canvas.width
-      this.pp.x = this.p.x + v.x
+      updateX()
     } else if (this.p.x < 0) {
       this.p.x = 0
-      this.pp.x = this.p.x + v.x
+      updateX()
     }
 
     // border y-axis
     if (this.p.y > canvas.height) {
       this.p.y = canvas.height
-      this.pp.y = this.p.y + v.y
+      updateY()
     } else if (this.p.y < 0) {
       this.p.y = 0
-      this.pp.y = this.p.y + v.y
+      updateY()
     }
   }
 }
@@ -124,7 +116,9 @@ class Stick {
   }
 
   constrainDistance() {
-    // reference: https://www.youtube.com/watch?v=pBMivz4rIJY
+    // reference:
+    // - https://www.youtube.com/watch?v=pBMivz4rIJY
+    // - https://datagenetics.com/blog/july22018/index.html
     let dx = this.p2.p.x - this.p1.p.x
     let dy = this.p2.p.y - this.p1.p.y
     let dist = this.p1.p.dist(this.p2.p)
@@ -133,8 +127,10 @@ class Stick {
 
     let offsetX = dx * percent
     let offsetY = dy * percent
+
     this.p1.p.x -= offsetX
     this.p1.p.y -= offsetY
+
     this.p2.p.x += offsetX
     this.p2.p.y += offsetY
   }

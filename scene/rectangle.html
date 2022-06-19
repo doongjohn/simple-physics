@@ -30,8 +30,9 @@
       ]
       points.push(...plist)
 
-      for (let i = 0; i < 4; ++i)
+      for (let i = 0; i < plist.length; ++i){
         plist[i].a = a.dup()
+      }
 
       sticks.push(new Stick(plist[0], plist[1]))
       sticks.push(new Stick(plist[0], plist[2]))
