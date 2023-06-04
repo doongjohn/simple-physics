@@ -5,7 +5,7 @@ canvas.style.background = '#ffffff'
 
 const center = {
   x: canvas.width / 2,
-  y: canvas.height / 2
+  y: canvas.height / 2,
 }
 
 window.addEventListener('resize', () => {
